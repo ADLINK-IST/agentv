@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Notice that the order matters, due to build dependencies"
+
+CORE_PKGS="agentv-core-types agentv-microsvc agentv-prelude"
+
+CORE_ASSEMBLIES="agentv agentv-runtime agentv-commander"
+
+MSVC_PKGS="agentv-microsvc-daytime agentv-microsvc-daytimelog agentv-microsvc-hello"
+
+for pkg in ${CORE_PKGS}
+do
+    pushd $PWD &>/dev/null
+    cd ${pkg}
+    sbt publish-local
+    popd &>/dev/null
+done
+
+for asb in ${CORE_ASSEMBLIES}
+do
+    pushd $PWD &>/dev/null
+    cd ${asb}
+    sbt assembly
+    popd &>/dev/null
+done
+
+
+for svc in ${MSVC_PKGS}
+do
+    pushd $PWD &>/dev/null
+    cd ${svc}
+    sbt package
+    popd &>/dev/null
+done

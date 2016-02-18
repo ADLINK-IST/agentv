@@ -1,0 +1,41 @@
+module com {
+  module prismtech {
+    module agentv {
+      module core {
+	module types {
+	  // Very minimal information about a node
+	  // A node represent an entity over which
+	  // microservices can be deployed.
+	  struct NodeInfo {
+	    string uuid;
+	    string info;
+	  };
+          #pragma keylist NodeInfo uuid
+
+	  
+	  struct RunningMicrosvc {
+	    string nodeId;
+	    string microsvcId; // Instance UUID the same as the one in the
+	                     // start action
+	    string microsvc;
+	  };
+          #pragma keylist RunningMicrosvc nodeId microsvcId
+
+	  struct NodeError {
+	    string nodeId;
+	    short  errno;
+	    string msg;
+	  };
+          #pragma keylist NodeError nodeId
+	  
+	  struct MicrosvcRepoEntry {
+	    string nodeId;
+	    string microsvc;
+	  };
+          #pragma keylist MicrosvcRepoEntry nodeId microsvc
+
+	};
+      };
+    };
+  };
+};

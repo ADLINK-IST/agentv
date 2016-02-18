@@ -1,0 +1,17 @@
+module com {
+    module prismtech {
+        module agentv {
+            module microsvc {
+                module daytime {
+                    module types {
+                        struct DayTime {
+                            long long currentTimeMillis;
+                            long long nanoTime;
+                        };
+                        #pragma keylist DayTime
+                    };
+                };
+            };
+        };
+    };
+};

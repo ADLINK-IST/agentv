@@ -1,0 +1,11 @@
+#!/bin/bash
+source ./bin/version
+
+rm -Rf ./jars &>/dev/null
+mkdir ./jars
+find . -name "*$AGENTV_VERSION.jar" -exec cp {} ./jars/ &> /dev/null \;
+
+cp jars/agentv-core-types_2.11-${AGENTV_VERSION}.jar ./bin/repository
+cp jars/agentv-runtime-assembly-${AGENTV_VERSION}.jar ./bin/repository
+cp jars/agentv-assembly-${AGENTV_VERSION}.jar ./bin/repository
+

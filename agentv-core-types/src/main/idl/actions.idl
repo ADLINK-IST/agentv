@@ -1,0 +1,74 @@
+module com {
+  module prismtech {
+    module agentv {
+      module core {
+	module types {
+	  
+	  typedef sequence<octet> ByteSeq;
+	  
+	  enum RepoActionKind {
+	    A_INSTALL,
+	    A_UPGRADE,
+	    A_REMOVE
+	  };
+
+
+	  struct InstallMicrosvc {
+	    string microsvc;
+	    ByteSeq payload;
+	  };
+
+	  struct UpgradeMicrosvc {
+	    string microsvc;
+	    boolean backup;
+	    ByteSeq payload;
+	  };
+
+	  struct RemoveMicrosvc {
+	    string microsvc;
+	  };
+
+	  union RepoActionCase switch (RepoActionKind) {
+	  case A_INSTALL:      InstallMicrosvc  install;
+	  case A_UPGRADE:      UpgradeMicrosvc  upgrade;
+	  case A_REMOVE:       RemoveMicrosvc   remove;
+	  };
+
+	  struct RepoAction {
+	    RepoActionCase action;
+	  };
+          #pragma keylist RepoAction
+
+	  typedef sequence<string> StringSeq;
+
+	  struct StartMicrosvc {
+	    string microsvc;
+	    string microsvcId; // a UUID associated with this request
+	    StringSeq args;
+	  };
+	  
+	  struct StopMicrosvc {
+	    string microsvcId;
+	  };
+
+	  enum MicrosvcActionKind {
+	    A_START,
+	    A_STOP
+	  };
+
+	  union MicrosvcActionCase switch (MicrosvcActionKind) {
+	  case A_START:        StartMicrosvc   start;
+	  case A_STOP:         StopMicrosvc    stop;	    
+	  };
+
+	  struct MicrosvcAction {
+	    MicrosvcActionCase action;
+	  };
+          #pragma keylist MicrosvcAction
+	  
+	};
+      };
+    };
+  };
+};
+

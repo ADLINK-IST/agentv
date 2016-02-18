@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+    echo "USAGE:"
+    echo "        agentv <agent-uuid> <agent-info>"
+    exit
+fi
+
+
+AGENT_ID=$1
+AGENT_INFO=$2
+DOMAIN=0
+
+java \
+    -Dddsi.network.interface=en1 \
+    -cp ./target/scala-2.11/agentv-assembly-0.2.0-SNAPSHOT.jar \
+    com.prismtech.agentv.Launcher \
+    com.prismtech.agentv.runtime.DDSRuntime \
+    ./repository \
+    com.prismtech.cafe.core.ServiceEnvironmentImpl \
+    ${AGENT_ID} ${AGENT_INFO}  ${DOMAIN}
