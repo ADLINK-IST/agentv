@@ -1,5 +1,6 @@
 *.class
 *.log
+*.jar
 
 # sbt specific
 .cache
@@ -18,3 +19,6 @@ project/plugins/project/
 
 #IntelliJ Specific
 .idea
+
+
+

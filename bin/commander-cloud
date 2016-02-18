@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo "USAGE:"
+    echo "        agentv  <vortex-cloud-loc>"
+    exit
+fi
+
+BASE_DIR=`dirname $0`
+source ${BASE_DIR}/version
+
+DOMAIN=0
+
+
+BASE_PORT=10000
+PORT_OFFSET=${RANDOM}%1000
+LOCAL_PORT=$((BASE_PORT+PORT_OFFSET))
+
+ADDR=$1
+PUBLIC_DISCOVERY_PORT=7400
+DISCOVERY_LOCATOR=${ADDR}:${PUBLIC_DISCOVERY_PORT}
+
+JAR_DIR="${BASE_DIR}/../lib"
+JAR="agentv-commander-assembly"
+
+echo "${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar"
+java \
+    -Dddsi.network.transport=tcp \
+    -Dddsi.discovery.tcp.peers=${DISCOVERY_LOCATOR} \
+    -Dddsi.discovery.externalNetworkAddresses=none \
+    -Dddsi.discovery.tcp.port=${LOCAL_PORT} \
+    -cp ${JAR_DIR}/${JAR}-${AGENTV_VERSION}.jar \
+    com.prismtech.agentv.commander.CommanderWindow $*
+
