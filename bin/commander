@@ -10,7 +10,7 @@ JAR="agentv-commander-assembly"
 
 echo "${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar"
 java \
-    -Dddsi.network.interface=en1 \
+    -Dddsi.network.interface=auto \
     -cp ${JAR_DIR}/${JAR}-${AGENTV_VERSION}.jar \
     com.prismtech.agentv.commander.CommanderWindow $*
 

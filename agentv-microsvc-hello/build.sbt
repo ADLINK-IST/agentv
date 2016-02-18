@@ -33,4 +33,4 @@ libraryDependencies += "io.nuvo" % "moliere_2.11" % "0.12.0-SNAPSHOT"
 libraryDependencies += "io.nuvo" % "nuvo-core_2.11" % "0.3.0-SNAPSHOT"
 
 
-publishTo := Some(Resolver.file("file",  new File( "/Users/veda/hacking/labs/techo/mvn-repo/snapshots" )) )
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"hacking/labs/techo/mvn-repo/snapshots" )) )

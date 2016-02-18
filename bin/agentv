@@ -17,10 +17,10 @@ DOMAIN=0
 JAR_DIR="${BASE_DIR}/../lib"
 JAR="agentv-assembly-"
 java \
-    -Dddsi.network.interface=en1 \
+    -Dddsi.network.interface=auto \
     -cp ${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar \
     com.prismtech.agentv.Launcher \
     com.prismtech.agentv.runtime.DDSRuntime \
-    ./repository \
+    ${BASE_DIR}/repository \
     com.prismtech.cafe.core.ServiceEnvironmentImpl \
     ${AGENT_ID} ${AGENT_INFO}  ${DOMAIN}

@@ -38,7 +38,8 @@ scalacOptions ++= Seq(
 
 scalacOptions ++=  Seq("-Xelide-below", "INFO")
 
-publishTo := Some(Resolver.file("file",  new File( "/Users/veda/hacking/labs/techo/mvn-repo/snapshots" )) )
+
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/hacking/labs/techo/mvn-repo/snapshots" )) )
 
 
 
