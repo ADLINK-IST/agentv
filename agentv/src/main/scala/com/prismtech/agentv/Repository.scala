@@ -64,7 +64,7 @@ class Repository (val path: String) {
 
 
   def resolveClass(s: String): Option[Array[Byte]] = {
-    val n = s.replace(".", File.separator) + ".class"
+    val n = s.replace(".", "/") + ".class"
     jars.get().map(jar => (jar, jar.getEntry(n))).filter(p => {
       logger.debug(p.toString())
       p._2 != null
