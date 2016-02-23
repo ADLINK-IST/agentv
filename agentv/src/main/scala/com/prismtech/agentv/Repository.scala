@@ -32,7 +32,7 @@ class Repository (val path: String) {
   val dir = new File(path)
 
 
-  private var jars = new AtomicReference(List[JarFile]())
+  private var jars = new AtomicReference(createJarFiles())
 
   val watchService = FileSystems.getDefault.newWatchService()
 
@@ -43,17 +43,16 @@ class Repository (val path: String) {
   )
 
   val dirWatcher = Worker.runLoop { () =>
+    watchService.take()
+    logger.info("The content of the package directory just changed")
     val njars = createJarFiles()
     val ojars = compareAndSet(jars) { js => njars}
     ojars.foreach(_.close())
-    watchService.take()
-    logger.info("The content of the package directory just changed")
   }
 
   def packages = jars.get().map(_.getName())
 
   def createJarFiles(): List[JarFile] = {
-
     dir.list().filter(_.endsWith(JAR_EXT)).map(n => {
       val jarFile = path + File.separator + n
       logger.info(s"Opening Jar = $jarFile")

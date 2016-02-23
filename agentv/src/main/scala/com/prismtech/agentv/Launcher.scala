@@ -14,7 +14,6 @@ object Launcher {
     if (args.length > 1) {
       val path = args(1)
       val cl = new RepositoryClassLoader(classOf[Runtime].getClassLoader, path)
-      Thread.sleep(5000)
       val cls = cl.loadClass(args(0))
 
       System.setProperty("dds.runtime.repository.path", path)
