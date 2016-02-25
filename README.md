@@ -1,5 +1,7 @@
 # AgentV: A Microservice Framework for Vortex
 
+[![Build Status](https://travis-ci.org/PrismTech/agentv.svg?branch=master)](https://travis-ci.org/PrismTech/agentv)
+
 AgentV provides a very lightweight microservice framework for
 Vortex. At the preent time microservices can only be packaged as Jar
 and implemented in a langauge targeting the JVM such as Java, Scala,
