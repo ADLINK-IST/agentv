@@ -32,6 +32,8 @@ libraryDependencies += "ch.qos.logback" % "logback-core" % "1.1.1"
 
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.1"
 
+libraryDependencies += "com.intellij" % "forms_rt" % "7.0.3"
+
 
 autoCompilerPlugins := true
 
