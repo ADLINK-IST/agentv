@@ -9,8 +9,15 @@ JAR_DIR="${BASE_DIR}/../lib"
 JAR="agentv-commander-assembly"
 
 echo "${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar"
+
+#
+# If you have a multi-homed machine, or a machine on which you
+# have several network interfaces please replace "auto" below
+# with the network inteface you'd like to use for communication
+# As an example on MacOS it could be en0, or en1, on Linux wlan0, etc.
+#
 java \
-    -Dddsi.network.interface=en1 \
+    -Dddsi.network.interface=auto \
     -cp ${JAR_DIR}/${JAR}-${AGENTV_VERSION}.jar \
     com.prismtech.agentv.commander.CommanderWindow $*
 
