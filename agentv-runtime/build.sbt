@@ -17,9 +17,9 @@ resolvers += "Local Repo"at  "file://"+Path.userHome.absolutePath+"/.ivy2/local"
 
 libraryDependencies += "com.prismtech" % "agentv-prelude_2.11" % "0.5.1-SNAPSHOT"
 
-libraryDependencies += "com.prismtech" % "agentv-microsvc_2.11" % "0.5.0-SNAPSHOT"
+libraryDependencies += "com.prismtech" % "agentv-microsvc_2.11" % "0.5.1-SNAPSHOT"
 
-libraryDependencies += "com.prismtech" % "agentv-core-types_2.11" % "0.5.0-SNAPSHOT"
+libraryDependencies += "com.prismtech" % "agentv-core-types_2.11" % "0.5.1-SNAPSHOT"
 
 libraryDependencies += "com.prismtech.cafe" % "cafe" % "2.2.1-SNAPSHOT"
 
