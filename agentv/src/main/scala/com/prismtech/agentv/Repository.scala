@@ -64,6 +64,7 @@ class Repository (val path: String) {
 
 
   def resolveClass(s: String): Option[Array[Byte]] = {
+    // Forward slash should be kept here.
     val n = s.replace(".", "/") + ".class"
     jars.get().map(jar => (jar, jar.getEntry(n))).filter(p => {
       logger.debug(p.toString())

@@ -35,12 +35,12 @@ object DDSRuntime {
 class DDSRuntime(repository: String, dds: String, val uuid: String, val info: String, val domain: Int = 0) {
 
   initRuntimeProp(DDS_RUNTIME_NODE_UUID, uuid)
-  setRuntimeProp(DDS_RUNTIME_NODE_MICROSVC_PARTITION, NodePartition + "/" + uuid)
+  setRuntimeProp(DDS_RUNTIME_NODE_MICROSVC_PARTITION, NodePartition + PartitionSeparator + uuid)
   setRuntimeProp(ServiceEnvironment.IMPLEMENTATION_CLASS_NAME_PROPERTY,  dds)
 
   val scheduler = Executors.newScheduledThreadPool(DDSRuntime.runtimeSchedulerThreadNum)
 
-  val microsvcPartition = NodePartition +  "/" + uuid
+  val microsvcPartition = NodePartition +  PartitionSeparator + uuid
   val logger = new Logger("DDSRuntime")
   val nodeAdvertisementPeriod = 1000 // 1 sec
 

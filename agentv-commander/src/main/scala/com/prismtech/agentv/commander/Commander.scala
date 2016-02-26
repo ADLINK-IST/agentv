@@ -1,6 +1,5 @@
 package com.prismtech.agentv.commander
 
-import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 
 import dds._
@@ -14,7 +13,7 @@ import io.nuvo.concurrent.synchronizers._
 import io.nuvo.runtime.Config.Logger
 
 class AgentContext(nodeId: String) {
-  val microsvcPartition = NodePartition+ File.separator + nodeId
+  val microsvcPartition = NodePartition + PartitionSeparator + nodeId
   
   val microSvcScope = Scope(microsvcPartition)
   implicit val (pub, sub) = microSvcScope ()
@@ -97,7 +96,8 @@ object Commander {
 
         nodes.foreach(a => setupAgentContext(a.uuid))
         val nodeNames = nodes.map(_.uuid)
-        val hasNewMembers = nodeNames.map(this.nodeList.contains(_)).exists(_ == false)
+
+        val hasNewMembers = !nodeNames.forall(this.nodeList.contains(_))
         if (hasNewMembers) {
           window.setNodeList(nodeNames.toArray)
           this.nodeList = nodeNames
@@ -105,7 +105,7 @@ object Commander {
     }
 
     {
-      val allNodesScope = Scope(NodePartition + File.separator + "*")
+      val allNodesScope = Scope(NodePartition + PartitionSeparator + "*")
       implicit val (pub, sub) = allNodesScope()
 
       val repoEntry = HardState[MicrosvcRepoEntry](MicroSvcRepositoryEntryTopicName, Durability.TransientLocal)

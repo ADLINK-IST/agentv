@@ -1,7 +1,8 @@
 package com.prismtech.agentv
 
 package object prelude {
-  val NodePartition               =  "com/prismtech/node"
+  val NodePartition               =  "com.prismtech.node"
+  val PartitionSeparator          = "."
   val NodeInfoTopicName           =  "NodeInfo"
   val NodeErrorTopicName           =  "NodeError"
   val MicrosvcActionTopicName     =  "MicroserviceAction"
