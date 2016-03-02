@@ -43,7 +43,9 @@ class MicrosvcRepository(path: String, notifier: String => Unit) {
 
     usvcs.foreach(_.close())
     val ojars = compareAndSet(microsvcsMap) { js => usvcsMap  }
-    watchService.take()
+    val keys = watchService.take()
+    keys.pollEvents()
+    keys.reset()
     logger.log("The content of the package directory just changed")
   }
 

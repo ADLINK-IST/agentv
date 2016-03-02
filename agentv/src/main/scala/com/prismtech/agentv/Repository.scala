@@ -43,11 +43,13 @@ class Repository (val path: String) {
   )
 
   val dirWatcher = Worker.runLoop { () =>
-    watchService.take()
+    val keys = watchService.take()
     logger.info("The content of the package directory just changed")
     val njars = createJarFiles()
     val ojars = compareAndSet(jars) { js => njars}
     ojars.foreach(_.close())
+    keys.pollEvents()
+    keys.reset()
   }
 
   def packages = jars.get().map(_.getName())
