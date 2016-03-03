@@ -55,6 +55,27 @@ object Commander {
     val action = new MicrosvcAction(c)
     ctx.foreach(_.appAction.writer.write(action))
   }
+  
+  /** 
+  *
+  * Start a given microservice on a given node, with a direct initialization of the microservice id.
+  *  
+  */
+  def startMicrosvc(nodeId: String, microsvc: String, microsvcId: String, args: Array[String]): Unit = {
+    logger.debug(s"Starting Microsvc $microsvc with the id $microsvcId on $nodeId with args: $args")
+    var ctx = getAgentContext(nodeId)
+    
+    if(runningMicrosvcHashMap.get(microsvcId)!=null){
+       val c = new MicrosvcActionCase()
+       c.start(new StartMicrosvc(microsvc, microsvcId, args))
+       val action = new MicrosvcAction(c)
+       ctx.foreach(_.appAction.writer.write(action))
+    }
+    else{
+      logger.error(s"Could not start Microsvc $microsvc with the id $microsvcId on $nodeId due to existence of a microservice with same identifier")
+   
+    }
+  }
 
   def stopMicrosvc(hash: String): Unit = {
     logger.debug(s"Stopping Microsvc: $hash")
