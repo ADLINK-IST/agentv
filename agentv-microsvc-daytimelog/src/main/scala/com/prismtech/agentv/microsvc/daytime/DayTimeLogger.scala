@@ -29,7 +29,7 @@ class DayTimeLogger extends Microsvc {
   var dayTime: Option[SoftState[DayTime]] = None
 
   override def init(rpub: Publisher, rsub: Subscriber, args: Array[String]): Unit = {
-    val partition = NodePartition + "/*"
+    val partition = NodePartition + "*"
     val scope = Scope(partition )
     implicit val (pub, sub) = scope ()
     dayTime = Some(SoftState[DayTime](topicName))
@@ -53,6 +53,7 @@ class DayTimeLogger extends Microsvc {
   def show(t: DayTime): String = "(" + t.currentTimeMillis + ", " + t.nanoTime + ")"
 
   override def start(): Boolean = {
+    println("Starting DayTime Logger")
     running.set(true)
 
     listenerId = dayTime.map(dt => dt.reader.listen {
