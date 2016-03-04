@@ -47,13 +47,22 @@ object Commander {
 
   def getAgentContext(nodeId: String): Option[AgentContext] = nodeContextMap.get(nodeId)
 
-  def startMicrosvc(nodeId: String, microsvc: String, args: Array[String]): Unit = {
+  def startMicrosvc(nodeId: String, microsvc: String, args: Array[String]): Boolean =
+    startMicrosvc(nodeId, microsvc, java.util.UUID.randomUUID().toString, args)
+  
+  def startMicrosvc(nodeId: String, microsvc: String, microsvcId: String, args: Array[String]): Boolean = {
     logger.debug(s"Starting Microsvc with args: $args")
     var ctx = getAgentContext(nodeId)
     val c = new MicrosvcActionCase()
-    c.start(new StartMicrosvc(microsvc, java.util.UUID.randomUUID().toString, args))
-    val action = new MicrosvcAction(c)
-    ctx.foreach(_.appAction.writer.write(action))
+    if (!runningMicrosvcHashMap.contains(microsvcId)) {
+      c.start(new StartMicrosvc(microsvc, microsvcId, args))
+      val action = new MicrosvcAction(c)
+      ctx.foreach(_.appAction.writer.write(action))
+      true}
+    else  {
+      logger.warning(s"Trying to start a new microsvc with an existing process identifier ($microsvcId)")
+      false
+    }
   }
 
   def stopMicrosvc(hash: String): Unit = {
