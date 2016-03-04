@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.jar.JarFile
 
 import com.prismtech.agentv.core.types.MicrosvcRepoEntry
+import com.prismtech.agentv.prelude._
 import dds.prelude.HardState
 import io.nuvo.concurrent.Worker
 import io.nuvo.concurrent.synchronizers._
@@ -17,9 +18,10 @@ import com.prismtech.agentv.prelude._
 /**
   * Created by kydos on 14/02/16.
   */
-class MicrosvcRepository(path: String, notifier: String => Unit) {
+class MicrosvcRepository(baseDir: String, notifier: String => Unit) {
   val JAR_EXT = ".jar"
   val logger = new Logger("MicrosvcRepository")
+  val path = baseDir + File.separator + REPO_DIR
   val dir = new File(path)
   val IMPL_TITLE= "Implementation-Title"
 
@@ -75,8 +77,7 @@ class MicrosvcRepository(path: String, notifier: String => Unit) {
   }
 
   def install(name: String, content: Array[Byte]): Boolean = {
-    val wdir= "./staging"
-    // path + File.separator +
+    val wdir= baseDir + File.separator + STAGING_DIR
     val fname = wdir + File.separator + name
     logger.info(s"Deploying: $fname")
     logger.debug("The Jar is " + content.length + " bytes")

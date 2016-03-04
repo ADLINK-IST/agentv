@@ -31,6 +31,6 @@ java \
     -cp ${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar \
     com.prismtech.agentv.Launcher \
     com.prismtech.agentv.runtime.DDSRuntime \
-    ./repository \
+    ${BASE_DIR} \
     com.prismtech.cafe.core.ServiceEnvironmentImpl \
     ${AGENT_ID} ${AGENT_INFO}  ${DOMAIN}

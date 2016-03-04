@@ -1,4 +1,4 @@
-version		:= "0.5.1-SNAPSHOT"
+version		:= "0.5.2-SNAPSHOT"
 
 organization 	:= "com.prismtech"
 
@@ -11,15 +11,15 @@ resolvers += "Vortex Snapshot Repo" at "https://dl.dropboxusercontent.com/u/1923
 
 resolvers += "nuvo.io maven repo" at "http://nuvo-io.github.com/mvn-repo/snapshots"
 
-resolvers += "PrismTech Snapshot Repo"at " http://prismtech.github.io/mvn-repo/snapshots"
+resolvers += "PrismTech Snapshot Repo" at " http://prismtech.github.io/mvn-repo/snapshots"
 
-resolvers += "Local Repo"at  "file://"+Path.userHome.absolutePath+"/.ivy2/local"
+resolvers += "Local Repo" at  "file://"+Path.userHome.absolutePath+"/.ivy2/local"
 
-libraryDependencies += "com.prismtech" % "agentv-prelude_2.11" % "0.5.1-SNAPSHOT"
+libraryDependencies += "com.prismtech" % "agentv-prelude_2.11" % "0.5.2-SNAPSHOT"
 
-libraryDependencies += "com.prismtech" % "agentv-microsvc_2.11" % "0.5.1-SNAPSHOT"
+libraryDependencies += "com.prismtech" % "agentv-microsvc_2.11" % "0.5.2-SNAPSHOT"
 
-libraryDependencies += "com.prismtech" % "agentv-core-types_2.11" % "0.5.1-SNAPSHOT"
+libraryDependencies += "com.prismtech" % "agentv-core-types_2.11" % "0.5.2-SNAPSHOT"
 
 libraryDependencies += "com.prismtech.cafe" % "cafe" % "2.2.1-SNAPSHOT"
 

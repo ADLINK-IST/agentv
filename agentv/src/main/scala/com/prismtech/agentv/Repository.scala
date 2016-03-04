@@ -8,6 +8,8 @@ import io.nuvo.runtime.Config.Logger
 import io.nuvo.concurrent.Worker
 import io.nuvo.concurrent.synchronizers._
 
+import com.prismtech.agentv.prelude.REPO_DIR
+
 import java.nio.file.{StandardWatchEventKinds, WatchKey, Paths, FileSystems}
 
 object Repository {
@@ -23,12 +25,13 @@ object Repository {
 /**
   * Creates a pacakge repository for the current agent.
   *
-  * @param path The path at which the repository will be created.
+  * @param baseDir The path at which the repository will be created.
   */
-class Repository (val path: String) {
+class Repository (val baseDir: String) {
 
   val JAR_EXT = ".jar"
   val logger = new Logger("Repository")
+  val path = baseDir + File.separator + REPO_DIR
   val dir = new File(path)
 
 

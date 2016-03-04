@@ -1,8 +1,8 @@
 #!/bin/bash
 source ./bin/version
 
-rm -Rf ./jars &>/dev/null
-mkdir ./jars
+rm -Rf ./lib &>/dev/null
+mkdir ./lib
 find . -name "*$AGENTV_VERSION.jar" -exec cp {} ./lib/ &> /dev/null \;
 
 cp lib/agentv-core-types_2.11-${AGENTV_VERSION}.jar ./bin/repository

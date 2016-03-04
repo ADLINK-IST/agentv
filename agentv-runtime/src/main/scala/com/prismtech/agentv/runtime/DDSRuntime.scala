@@ -1,5 +1,6 @@
 package com.prismtech.agentv.runtime
 
+import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Executors, ScheduledThreadPoolExecutor}
 
@@ -32,7 +33,7 @@ object DDSRuntime {
   }
 }
 
-class DDSRuntime(repository: String, dds: String, val uuid: String, val info: String, val domain: Int = 0) {
+class DDSRuntime(baseDir: String, dds: String, val uuid: String, val info: String, val domain: Int = 0) {
 
   initRuntimeProp(DDS_RUNTIME_NODE_UUID, uuid)
   setRuntimeProp(DDS_RUNTIME_NODE_MICROSVC_PARTITION, NodePartition + PartitionSeparator + uuid)
@@ -69,7 +70,7 @@ class DDSRuntime(repository: String, dds: String, val uuid: String, val info: St
     repoEntry.writer.write(new MicrosvcRepoEntry(uuid, microsvc))
   }
 
-  val microsvcRepo = new MicrosvcRepository(repository, notifier)
+  val microsvcRepo = new MicrosvcRepository(baseDir, notifier)
   var microSvcListenerId  = -1
   var repoListenerId      = -1
 

@@ -10,6 +10,9 @@ package object prelude {
   val RunningMicrosvcTopicName    =  "RunningMicrosvc"
   val MicroSvcRepositoryEntryTopicName    =  "MicrosvcRepositoryEntry"
 
+  val REPO_DIR                     = "repository"
+  val STAGING_DIR                  = "staging"
+
   val DDS_RUNTIME_PARTITION               = "dds.runtime.node.partition"
   val DDS_RUNTIME_NODE_INFO_TOPIC_NAME   = "dds.runtime.node.topic.info"
   val DDS_RUNTIME_NODE_CMD_TOPIC_NAME    = "dds.runtime.node.topic.cmd"
