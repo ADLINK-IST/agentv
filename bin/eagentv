@@ -18,7 +18,7 @@ JAR_DIR="${BASE_DIR}/../lib"
 JAR="agentv-assembly-"
 java \
     -Djava.library.path=/usr/lib/java \
-    -Dddsi.network.interface=en1 \
+    -Dddsi.network.interface=wlan0 \
     -cp ${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar \
     com.prismtech.agentv.Launcher \
     com.prismtech.agentv.runtime.DDSRuntime \
