@@ -11,9 +11,15 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import io.nuvo.util.log.ConsoleLogger;
 
-public class CommanderWindow extends JDialog {
+import com.prismtech.agentv.core.types.MicrosvcRepoEntry;
+import com.prismtech.agentv.core.types.NodeError;
+import com.prismtech.agentv.core.types.NodeInfo;
+import com.prismtech.agentv.core.types.RunningMicrosvc;
+import io.nuvo.util.log.ConsoleLogger;
+import java.util.List;
+
+public class CommanderWindow extends JDialog  implements AgentvEventListener {
     private JPanel contentPane;
     private JList<String> nodeList;
     private JTextField jarName;
@@ -33,6 +39,7 @@ public class CommanderWindow extends JDialog {
     private String selectedMicroSvc = null;
     private String selectedRunningMicrosvc = null;
     private ConsoleLogger logger = new ConsoleLogger("CommanderWindow");
+    private Commander commander = Commander.apply(this);
 
     public void setNodeList(String[] ais) {
         int idx = this.nodeList.getSelectedIndex();
@@ -44,7 +51,7 @@ public class CommanderWindow extends JDialog {
         logger.debug("Updating Running Microsvc List");
         if (selectedNodeValue != null) {
             String selection = this.runninglist.getSelectedValue();
-            this.runninglist.setListData(Commander.getRunningMicrosvcs(selectedNodeValue));
+            this.runninglist.setListData(commander.getRunningMicrosvcs(selectedNodeValue));
             if (selection != null)
                 this.runninglist.setSelectedValue(selection, true);
 
@@ -54,7 +61,7 @@ public class CommanderWindow extends JDialog {
     public void updateRepoEntries() {
         if (selectedNodeValue != null) {
             String selection = this.pkgslist.getSelectedValue();
-            this.pkgslist.setListData(Commander.getInstalledMicrosvcs(selectedNodeValue));
+            this.pkgslist.setListData(commander.getInstalledMicrosvcs(selectedNodeValue));
             if (selection != null)
                 this.pkgslist.setSelectedValue(selection, true);
 
@@ -91,7 +98,7 @@ public class CommanderWindow extends JDialog {
                 if (jarFile != null && selectedNodeValue != null) {
                     try {
                         byte[] buf = Files.readAllBytes(jarFile.toPath());
-                        Commander.deployPackage(selectedNodeValue, jarFile.getName(), buf);
+                        commander.deployPackage(selectedNodeValue, jarFile.getName(), buf);
 
                     } catch (IOException ioe) {
                         ioe.printStackTrace();
@@ -128,7 +135,7 @@ public class CommanderWindow extends JDialog {
                     else
                         args = as.split(" ");
 
-                    Commander.startMicrosvc(selectedNodeValue, selectedMicroSvc, args);
+                    commander.startMicrosvc(selectedNodeValue, selectedMicroSvc, args);
                 } else {
                     JOptionPane.showMessageDialog(contentPane, "Please Select a node and a microservice!");
                 }
@@ -138,7 +145,7 @@ public class CommanderWindow extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (selectedRunningMicrosvc != null) {
-                    Commander.stopMicrosvc(selectedRunningMicrosvc);
+                    commander.stopMicrosvc(selectedRunningMicrosvc);
                 } else
                     JOptionPane.showMessageDialog(contentPane, "Please Select a node and a running microservice!");
             }
@@ -146,13 +153,13 @@ public class CommanderWindow extends JDialog {
         nodeList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() == false) {
+                if (!e.getValueIsAdjusting()) {
                     selectedNodeId = nodeList.getSelectedIndex();
                     selectedNodeValue = (String) nodeList.getSelectedValue();
                     selectedMicroSvc = null;
                     nodeList.setSelectedIndex(nodeList.getSelectedIndex());
                     String nodeId = (String) nodeList.getSelectedValue();
-                    String[] microsvcs = Commander.getInstalledMicrosvcs(nodeId);
+                    String[] microsvcs = commander.getInstalledMicrosvcs(nodeId);
                     updateRepoEntries();
                     updateRunningList();
                 }
@@ -161,7 +168,7 @@ public class CommanderWindow extends JDialog {
         runninglist.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() == true) {
+                if (e.getValueIsAdjusting()) {
                     selectedRunningMicrosvc = (String) runninglist.getSelectedValue();
                 }
             }
@@ -190,7 +197,6 @@ public class CommanderWindow extends JDialog {
     public static void main(String[] args) {
         CommanderWindow dialog = new CommanderWindow();
         dialog.pack();
-        Commander.run(dialog);
         dialog.setVisible(true);
         System.exit(0);
 
@@ -298,5 +304,31 @@ public class CommanderWindow extends JDialog {
      */
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
+    }
+
+    @Override
+    public void onNodeError(NodeError error) {
+        logger.log(">> onNodeError");
+        this.addErrorEntry(error.nodeId + "(" + error.errno+ "): " + error.msg);
+    }
+
+    @Override
+    public void onUpdatedRunningMicrosvcs(List<RunningMicrosvc> rms) {
+        logger.log(">> onUpdatedRunningMicrosvcs");
+        this.updateRunningList();
+    }
+
+    @Override
+    public void onUpdatedMicrosvcRepository(List<MicrosvcRepoEntry> res) {
+        logger.log(">> onUpdatedMicrosvcRepository");
+
+        this.updateRepoEntries();
+    }
+
+    @Override
+    public void onUpdatedNodes(List<NodeInfo> ns) {
+        logger.log(">> onUpdatedNodes");
+
+        this.setNodeList(commander.getNodesList());
     }
 }

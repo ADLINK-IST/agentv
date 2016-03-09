@@ -17,7 +17,7 @@ echo "${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar"
 # As an example on MacOS it could be en0, or en1, on Linux wlan0, etc.
 #
 java \
-    -Dddsi.network.interface=auto \
+    -Dddsi.network.interface=en0 \
     -cp ${JAR_DIR}/${JAR}-${AGENTV_VERSION}.jar \
     com.prismtech.agentv.commander.CommanderWindow $*
 

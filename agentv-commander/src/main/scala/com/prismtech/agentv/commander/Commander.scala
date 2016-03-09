@@ -1,6 +1,6 @@
 package com.prismtech.agentv.commander
 
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 
 import dds._
 import dds.prelude._
@@ -11,6 +11,7 @@ import org.omg.dds.domain.DomainParticipantFactory
 import scala.collection.JavaConversions._
 import io.nuvo.concurrent.synchronizers._
 import io.nuvo.runtime.Config.Logger
+import scala.collection.JavaConversions._
 
 class AgentContext(nodeId: String) {
   val microsvcPartition = NodePartition + PartitionSeparator + nodeId
@@ -25,15 +26,92 @@ class AgentContext(nodeId: String) {
 }
 
 object Commander {
+  def apply() = new Commander(None)
+  def apply(listener: AgentvEventListener) = new Commander(Some(listener))
+}
 
-  val logger = new Logger("Commander")
-  var nodeContextMap      = Map[String, AgentContext]()
-  var microSvcRepoEntries = List[(String, String)]()
-  var runningMicrosvcsList    = List[RunningMicrosvc]()
-  var runningMicrosvcHashMap = Map[String, RunningMicrosvc]()
-  var nodeList = List[String]()
+class Commander(val listener: Option[AgentvEventListener]) {
 
-  def setupAgentContext(nodeId: String): AgentContext = {
+  private val running = new AtomicBoolean(false)
+
+  private val logger = new Logger("Commander")
+  private var nodeContextMap      = Map[String, AgentContext]()
+  private var microSvcRepoEntries = List[(String, String)]()
+  private var runningMicrosvcsList    = List[RunningMicrosvc]()
+  private var runningMicrosvcHashMap = Map[String, RunningMicrosvc]()
+  private var nodeList = List[String]()
+
+  private def runningMicrosvcHash(s: RunningMicrosvc): String = s.microsvc + "(" + s.microsvcId.hashCode + ")"
+
+  private val nodeInfo_ = {
+    val nodeScope = Scope(NodePartition)
+    implicit val (pub, sub) = nodeScope()
+
+    val nodeInfo = SoftState[NodeInfo](NodeInfoTopicName)
+
+    nodeInfo.reader.listen {
+      case DataAvailable(_) =>
+        val nodes =
+          nodeInfo.reader.select().dataState(DataState.allData).read().map(_.getData).toList
+
+        nodes.foreach(a => setupAgentContext(a.uuid))
+        val nodeNames = nodes.map(_.uuid)
+
+        val hasNewMembers = !nodeNames.forall(this.nodeList.contains(_))
+        logger.log(s"New Nodes Discovered: $hasNewMembers")
+
+        if (hasNewMembers) {
+          this.nodeList = nodeNames
+          this.nodeList.foreach(logger.log(_))
+          listener.foreach(_.onUpdatedNodes(nodes))
+        }
+    }
+    nodeInfo
+  }
+  private val allNodesScope = Scope(NodePartition + PartitionSeparator + "*")
+  private val repoEntry_ = {
+    implicit val (pub, sub) = allNodesScope()
+
+    val repoEntry = HardState[MicrosvcRepoEntry](MicroSvcRepositoryEntryTopicName, Durability.TransientLocal)
+    repoEntry.reader.listen {
+      case DataAvailable(_) =>
+        val pkgs =
+          repoEntry.reader.select().dataState(DataState.allData).read().filter(_.getData != null).map(_.getData).toList
+
+        microSvcRepoEntries = pkgs.map(e => (e.nodeId, e.microsvc))
+        microSvcRepoEntries.foreach(e => logger.info(e.toString()))
+        listener.foreach(_.onUpdatedMicrosvcRepository(pkgs))
+    }
+    repoEntry
+  }
+
+  private val errorLog_ = {
+    implicit val (pub, sub) = allNodesScope()
+    val errorLog = HardState[NodeError](NodeErrorTopicName, Durability.TransientLocal)
+    errorLog.reader.listen {
+      case DataAvailable(_) =>
+        var elogs = errorLog.reader.select().dataState(DataState.newData).read().filter(_.getData != null).map(_.getData).toList
+        elogs.foreach(log => listener.foreach(_.onNodeError(log)))
+    }
+    errorLog
+  }
+
+  private val runningMicrosvcs_ = {
+    implicit val (pub, sub) = allNodesScope()
+    val runningMicrosvcs = HardState[RunningMicrosvc](RunningMicrosvcTopicName, Durability.TransientLocal)
+    runningMicrosvcs.reader.listen {
+      case DataAvailable(_) =>
+        runningMicrosvcsList = runningMicrosvcs.reader.select()
+          .dataState(DataState.allData)
+          .read().filter(_.getData != null).map(_.getData).toList
+        runningMicrosvcsList.foreach(r => logger.info(r.microsvcId + "(" + r.nodeId + ")"))
+        runningMicrosvcHashMap = runningMicrosvcsList.map(s => (runningMicrosvcHash(s), s)).toMap
+        listener.foreach(_.onUpdatedRunningMicrosvcs(runningMicrosvcsList));
+    }
+    runningMicrosvcs
+  }
+
+  private def setupAgentContext(nodeId: String): AgentContext = {
     synchronized {
       nodeContextMap.get(nodeId) match {
         case Some(ctx) => ctx
@@ -45,7 +123,7 @@ object Commander {
     }
   }
 
-  def getAgentContext(nodeId: String): Option[AgentContext] = nodeContextMap.get(nodeId)
+  private def getAgentContext(nodeId: String): Option[AgentContext] = nodeContextMap.get(nodeId)
 
   def startMicrosvc(nodeId: String, microsvc: String, args: Array[String]): Boolean =
     startMicrosvc(nodeId, microsvc, java.util.UUID.randomUUID().toString, args)
@@ -92,69 +170,26 @@ object Commander {
     ctx.foreach(_.repoAction.writer.write(action))
   }
 
-  def run(window: CommanderWindow) {
 
-    val nodeScope = Scope(NodePartition)
-    implicit val (pub, sub) = nodeScope()
-
-    val nodeInfo = SoftState[NodeInfo](NodeInfoTopicName)
-    nodeInfo.reader.listen {
-      case DataAvailable(_) =>
-        val nodes =
-          nodeInfo.reader.select().dataState(DataState.allData).read().map(_.getData).toList
-
-        nodes.foreach(a => setupAgentContext(a.uuid))
-        val nodeNames = nodes.map(_.uuid)
-
-        val hasNewMembers = !nodeNames.forall(this.nodeList.contains(_))
-        if (hasNewMembers) {
-          window.setNodeList(nodeNames.toArray)
-          this.nodeList = nodeNames
-        }
-    }
-
-    {
-      val allNodesScope = Scope(NodePartition + PartitionSeparator + "*")
-      implicit val (pub, sub) = allNodesScope()
-
-      val repoEntry = HardState[MicrosvcRepoEntry](MicroSvcRepositoryEntryTopicName, Durability.TransientLocal)
-      repoEntry.reader.listen {
-        case DataAvailable(_) =>
-          val pkgs =
-            repoEntry.reader.select().dataState(DataState.allData).read().filter(_.getData != null).map(_.getData).toList
-
-          microSvcRepoEntries = pkgs.map(e => (e.nodeId, e.microsvc))
-          microSvcRepoEntries.foreach(e => logger.info(e.toString()))
-          window.updateRepoEntries();
-      }
-
-      val errorLog = HardState[NodeError](NodeErrorTopicName, Durability.TransientLocal)
-      errorLog.reader.listen {
-        case DataAvailable(_) =>
-          var elogs = errorLog.reader.select().dataState(DataState.newData).read().filter(_.getData != null).map(_.getData).toList
-          elogs.foreach(log => window.addErrorEntry(log.nodeId + "(" + log.errno+ ": " + log.msg))
-
-      }
-
-      val runningMicrosvcs = HardState[RunningMicrosvc](RunningMicrosvcTopicName, Durability.TransientLocal)
-      runningMicrosvcs.reader.listen {
-        case DataAvailable(_) =>
-          runningMicrosvcsList = runningMicrosvcs.reader.select()
-            .dataState(DataState.allData)
-            .read().filter(_.getData != null).map(_.getData).toList
-          runningMicrosvcsList.foreach(r => logger.info(r.microsvcId + "(" + r.nodeId + ")"))
-          runningMicrosvcHashMap = runningMicrosvcsList.map(s => (runningMicrosvcHash(s), s)).toMap
-
-          window.updateRunningList();
-      }
+  def stop(): Unit = {
+    if (running.getAndSet(false)) {
+      nodeInfo_.reader.close()
+      runningMicrosvcs_.reader.close()
+      repoEntry_.reader.close()
+      errorLog_.reader.close()
+      nodeContextMap.foreach(c => {
+        c._2.appAction.writer.close()
+        c._2.repoAction.writer.close()
+      })
     }
   }
-
   def getInstalledMicrosvcs(nodeId: String) : Array[String] = {
     microSvcRepoEntries.filter(_._1 == nodeId).map(e => e._2).toArray
   }
 
-  def runningMicrosvcHash(s: RunningMicrosvc): String = s.microsvc + "(" + s.microsvcId.hashCode + ")"
+  def getNodesList(): Array[String] = {
+    this.nodeList.toArray
+  }
 
   def getRunningMicrosvcs(nodeId: String): Array[String] = {
     runningMicrosvcsList.filter(s => s.nodeId == nodeId).map(s => runningMicrosvcHash(s)).toArray
