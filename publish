@@ -1,0 +1,11 @@
+#!/bin/bash
+
+DIRS=`find . -name "agentv*" -type d -depth 1`
+
+for d in $DIRS;
+do
+    pushd $PWD
+    cd $d
+    sbt publish
+    popd &> /dev/null
+done 
