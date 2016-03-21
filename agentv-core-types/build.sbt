@@ -1,6 +1,5 @@
-val jdk7 = true
-
-val jdkver = if (jdk7) "-jdk7" else ""
+val jdk7 = false
+val jdkver =  if (System.getProperty("java.version").startsWith("1.7")) "-jdk7" else ""
 
 name            := s"agentv-core-types$jdkver"
 
@@ -11,8 +10,6 @@ organization 	:= "com.prismtech"
 homepage :=  Some(new java.net.URL("http://prismtech.com"))
 
 scalaVersion 	:= "2.11.8"
-
-// scalaVersion 	:= "2.10.6"
 
 resolvers += "Vortex Snapshot Repo" at "https://dl.dropboxusercontent.com/u/19238968/devel/mvn-repo/vortex"
 

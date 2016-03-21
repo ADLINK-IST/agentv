@@ -1,6 +1,4 @@
-val jdk7 = true
-
-val jdkver = if (jdk7) "-jdk7" else ""
+val jdkver =  if (System.getProperty("java.version").startsWith("1.7")) "-jdk7" else ""
 
 name		:= s"agentv$jdkver"
 
