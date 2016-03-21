@@ -90,7 +90,7 @@ class MicrosvcRepository(baseDir: String, notifier: String => Unit) {
     val jarf = new JarFile(f)
 
     if (!isMicroService(jarf)) {
-      jarf.close();
+      jarf.close()
       f.delete()
       logger.warning(s"$fname is not a valid microservice, deleting the jar")
       false

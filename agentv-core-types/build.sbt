@@ -1,12 +1,16 @@
-name            := "agentv-core-types"
+val jdk7 = true
 
-version		:= "0.5.2-SNAPSHOT"
+val jdkver = if (jdk7) "-jdk7" else ""
+
+name            := s"agentv-core-types$jdkver"
+
+version		:= "0.5.3-SNAPSHOT"
 
 organization 	:= "com.prismtech"
 
 homepage :=  Some(new java.net.URL("http://prismtech.com"))
 
-scalaVersion 	:= "2.11.7"
+scalaVersion 	:= "2.11.8"
 
 // scalaVersion 	:= "2.10.6"
 

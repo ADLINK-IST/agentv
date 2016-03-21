@@ -1,19 +1,23 @@
-name            := "agentv-microsvc-daytimelog"
+val jdk7 = true
 
-version		:= "0.5.2-SNAPSHOT"
+val jdkver = if (jdk7) "-jdk7" else ""
+
+name            := s"agentv-microsvc-daytimelog$jdkver"
+
+version		:= "0.5.3-SNAPSHOT"
 
 organization 	:= "com.prismtech"
 
 homepage :=  Some(new java.net.URL("http://prismtech.com"))
 
-scalaVersion 	:= "2.11.7"
-
+scalaVersion 	:= "2.11.8"
 
 packageOptions += Package.ManifestAttributes(
   "Entry-Point" -> "com.prismtech.agentv.microsvc.daytime.DayTimeLogger",
   "Jar-Kind"    -> "vortex-microservice"
 )
 
+val dpfix = jdkver + "_2.11"
 
 resolvers += "Vortex Snapshot Repo" at "https://dl.dropboxusercontent.com/u/19238968/devel/mvn-repo/vortex"
 
@@ -23,14 +27,14 @@ resolvers += "nuvo.io maven repo" at "http://nuvo-io.github.com/mvn-repo/snapsho
 
 resolvers += "Local Repo"at  "file://"+Path.userHome.absolutePath+"/.ivy2/local"
 
-libraryDependencies += "com.prismtech" % "agentv-prelude_2.11" % "0.5.2-SNAPSHOT"
+libraryDependencies += "com.prismtech" % s"agentv-prelude$dpfix" % "0.5.3-SNAPSHOT"
 
-libraryDependencies += "com.prismtech" % "agentv-microsvc_2.11" % "0.5.2-SNAPSHOT"
+libraryDependencies += "com.prismtech" % s"agentv-microsvc$dpfix" % "0.5.3-SNAPSHOT"
 
 libraryDependencies += "com.prismtech.cafe" % "cafe" % "2.2.1-SNAPSHOT"
 
-libraryDependencies += "io.nuvo" % "moliere_2.11" % "0.12.0-SNAPSHOT"
+libraryDependencies += "io.nuvo" % s"moliere$dpfix" % "0.12.2-SNAPSHOT"
 
-libraryDependencies += "io.nuvo" % "nuvo-core_2.11" % "0.3.0-SNAPSHOT"
+libraryDependencies += "io.nuvo" % s"nuvo-core$dpfix" % "0.3.2-SNAPSHOT"
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/hacking/labs/techo/mvn-repo/snapshots" )) )
