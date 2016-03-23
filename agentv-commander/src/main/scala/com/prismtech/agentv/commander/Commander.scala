@@ -51,23 +51,55 @@ class Commander(val listener: Option[AgentvEventListener]) {
 
     nodeInfo.reader.listen {
       case DataAvailable(_) =>
-        val nodes =
-          nodeInfo.reader.select().dataState(DataState.allData).read().map(_.getData).toList
+        val newNodes =
+          nodeInfo.reader.select().dataState(DataState.newInstances).read().map(_.getData).toList
 
-        nodes.foreach(a => setupAgentContext(a.uuid))
-        val nodeNames = nodes.map(_.uuid)
+        val notAliveNodes = nodeInfo.reader.select().dataState(DataState.notAliveInstances).take()
+          .filter(_.getData != null).map(_.getData()).toList
 
-        val hasNewMembers = !nodeNames.forall(this.nodeList.contains(_))
-        logger.log(s"New Nodes Discovered: $hasNewMembers")
+        val disposedNodes =  nodeInfo.reader.select().dataState(DataState.disposedInstances).take()
+          .filter(_.getData != null).map(_.getData()).toList
 
-        if (hasNewMembers) {
-          this.nodeList = nodeNames
-          this.nodeList.foreach(logger.log(_))
-          listener.foreach(_.onUpdatedNodes(nodes))
-        }
+        newNodes.foreach(n => { logger.log("new node: " + n.uuid)})
+        notAliveNodes.foreach(n => { logger.log("not alive node: " + n.uuid)})
+        disposedNodes.foreach(n => { logger.log("disposed node: " + n.uuid)})
+
+        this.nodeList = nodeInfo.reader.select().dataState(DataState.allData).read().map(_.getData.uuid).toList
+
+        newNodes.foreach(n => setupAgentContext(n.uuid))
+
+        listener.foreach (l => {
+          notAliveNodes.foreach(n => l.onNodeLeave(n))
+          disposedNodes.foreach(n => l.onNodeLeave(n))
+          newNodes.foreach(n => l.onNodeJoin(n))
+        })
+
+
+//        val removedNodes = notAliveNodes.nonEmpty || disposedNodes.nonEmpty
+//        if (removedNodes) {
+//          this.nodeList = this.nodeList.filter(n => notAliveNodes.contains(n) || disposedNodes.contains(n))
+//
+//        }
+//
+//        nodes.foreach(a => setupAgentContext(a.uuid))
+//        val nodeNames = nodes.map(_.uuid)
+//
+//        val hasNewMembers = !nodeNames.forall(this.nodeList.contains(_))
+//        logger.log(s"New Nodes Discovered: $hasNewMembers")
+//
+//        if (hasNewMembers) {
+//          this.nodeList = nodeNames
+//          this.nodeList.foreach(logger.log(_))
+//
+//          for (
+//            n <- nodes;
+//            l <- listener
+//          ) yield l.onNodeJoin(n)
+        //}
     }
     nodeInfo
   }
+
   private val allNodesScope = Scope(NodePartition + PartitionSeparator + "*")
   private val repoEntry_ = {
     implicit val (pub, sub) = allNodesScope()

@@ -10,6 +10,8 @@ trait AgentvEventListener {
 
   def onUpdatedMicrosvcRepository(res: java.util.List[MicrosvcRepoEntry]): Unit
 
-  def onUpdatedNodes(ns: java.util.List[NodeInfo]): Unit
+  def onNodeJoin(n: NodeInfo): Unit
+
+  def onNodeLeave(n: NodeInfo): Unit
 
 }

@@ -326,9 +326,23 @@ public class CommanderWindow extends JDialog  implements AgentvEventListener {
     }
 
     @Override
-    public void onUpdatedNodes(List<NodeInfo> ns) {
-        logger.log(">> onUpdatedNodes");
-
+    public void onNodeJoin(NodeInfo n) {
         this.setNodeList(commander.getNodesList());
     }
+
+    @Override
+    public void onNodeLeave(NodeInfo n) {
+        if (n.uuid.equals(selectedNodeValue)) {
+            selectedNodeValue = null;
+            this.pkgslist.setListData(new String[0]);
+        }
+        this.setNodeList(commander.getNodesList());
+    }
+
+//    @Override
+//    public void onUpdatedNodes(List<NodeInfo> ns) {
+//        logger.log(">> onUpdatedNodes");
+//
+//        this.setNodeList(commander.getNodesList());
+//    }
 }
