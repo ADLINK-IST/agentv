@@ -13,12 +13,12 @@ fi
 AGENT_ID=$1
 AGENT_INFO=$2
 DOMAIN=0
-
+ETH=en1
 JAR_DIR="${BASE_DIR}/../lib"
 JAR="agentv-assembly-"
 
 java \
-    -Dddsi.network.interface=en0 \
+    -Dddsi.network.interface=${ETH} \
     -cp ${JAR_DIR}/${JAR}${AGENTV_VERSION}.jar \
     com.prismtech.agentv.Launcher \
     com.prismtech.agentv.runtime.DDSRuntime \
